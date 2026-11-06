@@ -1,0 +1,56 @@
+# Tells nexform-guide that a document changed, so it re-copies files/ and
+# republishes the documentation center to Feishu.
+#
+# A repository's own GITHUB_TOKEN cannot send events to another repository, so
+# this workflow mints a short-lived token from the NEXFORM documentation App
+# (installed on nexform-guide only) and uses it for the dispatch.
+#
+# The App credentials are repository secrets. Until they are set, the job
+# reports that it skipped instead of failing on every documentation push; the
+# nightly sync in nexform-guide still picks the change up.
+name: Notify docs center
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.pdf"
+      - "**/*.PDF"
+      - "**/*.STEP"
+      - "**/*.step"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check the documentation App credentials
+        id: check
+        env:
+          APP_ID: ${{ secrets.NEXFORM_APP_ID }}
+          PRIVATE_KEY: ${{ secrets.NEXFORM_APP_PRIVATE_KEY }}
+        run: |
+          if [ -n "$APP_ID" ] && [ -n "$PRIVATE_KEY" ]; then
+            echo "configured=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::NEXFORM_APP_ID or NEXFORM_APP_PRIVATE_KEY is not set in this repository; skipping the docs-center dispatch."
+          fi
+
+      - uses: actions/create-github-app-token@v3
+        if: steps.check.outputs.configured == 'yes'
+        id: app
+        with:
+          app-id: ${{ secrets.NEXFORM_APP_ID }}
+          private-key: ${{ secrets.NEXFORM_APP_PRIVATE_KEY }}
+          owner: nexform-tech
+          repositories: nexform-guide
+
+      - name: Ask nexform-guide to sync its files
+        if: steps.check.outputs.configured == 'yes'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: gh api --method POST repos/nexform-tech/nexform-guide/dispatches -f event_type=docs-updated
