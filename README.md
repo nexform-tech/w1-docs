@@ -3,8 +3,15 @@
 Product documentation source, built and published as the public documentation
 site for the **W1 wheeled mobile robot**.
 
-> **Status:** repository initialized. Source code, packaging and documentation
-> have not landed yet.
+> **Status:** the product manual has landed in both languages. The published
+> site, the SDK guides and the rest of the documentation are still to come.
+
+## Manuals
+
+| Manual | Language | Contents |
+| --- | --- | --- |
+| [NEXFORM_W1产品说明书.pdf](NEXFORM_W1产品说明书.pdf) | 简体中文 | Specifications, interfaces, operation and maintenance |
+| [W1-Product-Manual.pdf](W1-Product-Manual.pdf) | English | Specifications, interfaces, operation and maintenance |
 
 ## Scope
 
@@ -12,7 +19,7 @@ site for the **W1 wheeled mobile robot**.
 | --- | --- |
 | Product | W1 wheeled mobile robot |
 | Repository role | Product documentation source, built and published as the public documentation site |
-| Status | Initializing — no source code yet |
+| Status | Initializing — product manual only |
 
 ## Related repositories
 
